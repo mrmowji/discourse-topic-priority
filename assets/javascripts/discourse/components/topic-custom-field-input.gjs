@@ -1,10 +1,11 @@
 import Component from "@glimmer/component";
 import { Input, Textarea } from "@ember/component";
 import { on } from "@ember/modifier";
+import { action } from "@ember/object";
 import { readOnly } from "@ember/object/computed";
 import { service } from "@ember/service";
 import { eq } from "truth-helpers";
-import i18n from "discourse-common/helpers/i18n";
+import { i18n } from "discourse-i18n";
 
 export default class TopicCustomFieldInput extends Component {
   @service siteSettings;
@@ -46,13 +47,23 @@ export default class TopicCustomFieldInput extends Component {
     return this.isPriorityEnabled && this.canEditField && this.isAllowedCategory;
   }
 
+  @action
+  updateValue(event) {
+    this.args.onChangeField(event.target.value);
+  }
+
+  @action
+  updateChecked(event) {
+    this.args.onChangeField(event.target.checked);
+  }
+
   <template>
     {{#if this.canShowField}}
       {{#if (eq this.fieldType "boolean")}}
         <Input
           @type="checkbox"
           @checked={{@fieldValue}}
-          {{on "change" (action @onChangeField value="target.checked")}}
+          {{on "change" this.updateChecked}}
         />
         <span>{{this.fieldName}}</span>
       {{/if}}
@@ -66,7 +77,7 @@ export default class TopicCustomFieldInput extends Component {
             field=this.fieldName
           }}
           class="topic-custom-field-input small"
-          {{on "change" (action @onChangeField value="target.value")}}
+          {{on "change" this.updateValue}}
         />
       {{/if}}
 
@@ -79,14 +90,14 @@ export default class TopicCustomFieldInput extends Component {
             field=this.fieldName
           }}
           class="topic-custom-field-input large"
-          {{on "change" (action @onChangeField value="target.value")}}
+          {{on "change" this.updateValue}}
         />
       {{/if}}
 
       {{#if (eq this.fieldType "json")}}
         <Textarea
           @value={{@fieldValue}}
-          {{on "change" (action @onChangeField value="target.value")}}
+          {{on "change" this.updateValue}}
           placeholder={{i18n
             "topic_priority.placeholder"
             field=this.fieldName

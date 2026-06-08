@@ -1,7 +1,5 @@
 import SortableColumn from "discourse/components/topic-list/header/sortable-column";
-import { alias } from "@ember/object/computed";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import discourseComputed from "discourse-common/utils/decorators";
 
 const CustomFieldHeaderCell = <template>
   <SortableColumn
@@ -24,42 +22,35 @@ const CustomFieldItemCell = <template>
 export default {
   name: "topic-custom-field-intializer",
   initialize(container) {
-    const siteSettings = container.lookup("site-settings:main");
+    const siteSettings = container.lookup("service:site-settings");
     const fieldName = siteSettings.topic_priority_field_name;
 
-    withPluginApi("1.37.3", (api) => {
+    withPluginApi((api) => {
       api.serializeOnCreate(fieldName);
       api.serializeToDraft(fieldName);
       api.serializeToTopic(fieldName, `topic.${fieldName}`);
 
-      api.modifyClass("component:topic-list-item", {
-        pluginId: "topic-custom-field",
-        customFieldName: fieldName,
-        customFieldValue: alias(`topic.${fieldName}`),
-
-        showCustomField: discourseComputed("customFieldValue", function (value) {
-          return value !== null && value !== undefined;
-        }),
-      });
-    });
-
-    withPluginApi("2.1.0", (api) => {
       api.registerValueTransformer(
         "topic-list-columns",
         ({ value, context }) => {
           if (!siteSettings.topic_priority_enabled) return;
 
           const allowedCategories = siteSettings.topic_priority_field_categories;
-          // AI: context.category can be an object or an ID
+          // context.category can be an object or an ID
           const categoryId = context?.category?.id || context?.category;
 
           if (
-            (categoryId && allowedCategories?.length > 0 && allowedCategories?.split("|").map(c => parseInt(c, 10)).includes(categoryId))
+            categoryId &&
+            allowedCategories?.length > 0 &&
+            allowedCategories
+              .split("|")
+              .map((c) => parseInt(c, 10))
+              .includes(categoryId)
           ) {
-            value.add(
-              fieldName,
-              { header: CustomFieldHeaderCell, item: CustomFieldItemCell },
-            );
+            value.add(fieldName, {
+              header: CustomFieldHeaderCell,
+              item: CustomFieldItemCell,
+            });
           }
         }
       );
