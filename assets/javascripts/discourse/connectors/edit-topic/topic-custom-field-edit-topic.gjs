@@ -2,11 +2,12 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { alias } from "@ember/object/computed";
 import { service } from "@ember/service";
+import TopicCustomFieldInput from "../../components/topic-custom-field-input";
 
 export default class TopicCustomFieldEditTopic extends Component {
   @service siteSettings;
   @alias("siteSettings.topic_priority_field_name") fieldName;
-  
+
   get categoryId() {
     return this.args.outletArgs.model?.categoryId;
   }
@@ -20,4 +21,12 @@ export default class TopicCustomFieldEditTopic extends Component {
   onChangeField(fieldValue) {
     this.args.outletArgs.buffered.set(this.fieldName, fieldValue || 0);
   }
+
+  <template>
+    <TopicCustomFieldInput
+      @fieldValue={{this.fieldValue}}
+      @onChangeField={{this.onChangeField}}
+      @categoryId={{this.categoryId}}
+    />
+  </template>
 }

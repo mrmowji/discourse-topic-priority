@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { alias } from "@ember/object/computed";
 import { service } from "@ember/service";
+import TopicCustomFieldInput from "../../components/topic-custom-field-input";
 
 export default class TopicCustomFieldComposer extends Component {
   @service siteSettings;
@@ -33,4 +34,12 @@ export default class TopicCustomFieldComposer extends Component {
   onChangeField(fieldValue) {
     this.composerModel.set(this.fieldName, fieldValue);
   }
+
+  <template>
+    <TopicCustomFieldInput
+      @fieldValue={{this.fieldValue}}
+      @onChangeField={{this.onChangeField}}
+      @categoryId={{this.categoryId}}
+    />
+  </template>
 }
